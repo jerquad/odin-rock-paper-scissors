@@ -1,0 +1,43 @@
+body {
+    display: flex;
+    justify-content: center;
+}
+
+.container { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 600px;
+    background-color: bisque;
+}
+
+.score-board {
+    display: flex;
+    align-self: stretch;
+    justify-content: space-between;
+    padding: 1em 0;
+    background-color: aqua;
+}
+
+.score-team {
+    display: flex;
+    gap: .5em;
+}
+
+.score-tab{ 
+    border-radius: .5em;
+    border: .5em solid lightgray;
+}
+
+.player-point {
+    border-color: yellow;
+}
+
+.computer-point {
+    border-color: red;
+}
+
+.message-box {
+    padding: 1em;
+}

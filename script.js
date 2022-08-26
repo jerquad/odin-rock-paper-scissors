@@ -3,29 +3,23 @@
     for an assignment as part of The Odin Project
 */
 
+const playerButtons = document.querySelectorAll('.button-player');
+
+playerButtons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+        game(e.target.innerText);
+    });
+});
+
+const playButton = document.querySelector('#button-start');
+playButton.addEventListener('click', (e) => {
+    startGame();
+});
+
 // Randomly return one of three selections
 function getComputerChoice() {
     const rand = Math.floor(Math.random() * 3);
     return (rand < 1) ? "Rock" : (rand < 2) ? "Paper" : "Scissors";
-    }
-
-/* 
-    Prompt the player for choice, case insensitive, requires 
-    correct choice, allows for singular scissor
-*/
-function getPlayerChoice() {
-    let playerChoice;
-    while (true) {
-        playerChoice = prompt("Your Up! Rock, Paper, or Scissors?!");
-        playerChoice = playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1).toLowerCase();
-        if (playerChoice == "Scissor") {
-            playerChoice += "s";
-        }
-        if (playerChoice == "Rock" || playerChoice == "Paper" || playerChoice == "Scissors") {
-            break;
-        }
-    }
-    return playerChoice;
 }
 
 // Returns a victory condition based on passed strings
@@ -55,36 +49,90 @@ function playRound(playerChoice, computerChoice) {
     }
 }
 
-// loops rounds of play until at least 3 points scored by either player
-function game() {
-    let playerScore = 0;
-    let computerScore = 0;
-    let playerChoice, 
-        computerChoice;
-    for (let i = 0; i < 5; i++) {
-        playerChoice = getPlayerChoice();
-        computerChoice = getComputerChoice();
-        switch (playRound(playerChoice, computerChoice)) {
-            case "W":
-                console.log(`You Win! ${playerChoice} beats ${computerChoice}!`);
-                playerScore++;
-                break;
-            case "L":
-                console.log(`You Lose! ${computerChoice} beats ${playerChoice}!`);
-                computerScore++
-                break;
-            case "T":
-                console.log("It's a tie! Go Again!");
-                i--;
-                break;
+function changeMessage(textToChange) {
+    document.querySelector('.message-box').textContent = textToChange;
+}
+
+function setResult(side) {
+    let message;
+    if (side === 'player') {
+        message = 'You Win!';
+    }
+    else {
+        message = 'You Lose!';
+    }
+    document.querySelector('#result').textContent = message;
+}
+
+function allowButton() {
+    playerButtons.forEach((button) => {
+        if (button.disabled === true) {
+            button.disabled = false;
         }
-        console.log(`Player: ${playerScore}  Computer: ${computerScore}`);
-        if (playerScore == 3 || computerScore == 3) {
+        else {
+            button.disabled = true;
+        }
+    });
+}
+
+// Resets the game, enables play
+function startGame() {
+    allowButton();
+    document.querySelectorAll('.score-tab').forEach((tab) => {        
+        if (tab.classList.contains('computer-point')) {
+            tab.classList.toggle('computer-point');
+        }
+        if (tab.classList.contains('player-point')) {
+            tab.classList.toggle('player-point');
+        }
+    });
+    document.querySelector('#button-start').remove();
+    changeMessage('Make a Choice!');
+}
+
+// Announces win status, disables play
+function endGame() {
+    allowButton();
+    changeMessage('');
+    const startButton = document.createElement('button');
+    startButton.textContent = 'Play Again?'
+    startButton.addEventListener('click', (e) => {
+        startGame();
+    });
+    startButton.setAttribute('id', 'button-start');
+    document.querySelector('.message-box').appendChild(startButton);
+}
+
+// Determines results of a round
+function game(playerChoice) {    
+    let computerChoice = getComputerChoice()
+    switch (playRound(playerChoice, computerChoice)) {
+        case "W":
+            changeMessage(`Computer picks ${computerChoice} ... You Win! Go Again!`);
+            scoreUp('player');
             break;
+        case "L":
+            changeMessage(`Computer picks ${computerChoice} ... You Lose! GO Again!`);
+            scoreUp('computer');
+            break;
+        case "T":
+            changeMessage("It's a tie! Go Again!");
+            break;
+    }
+}
+
+// Utilizes the player/computer's point class to determine if a win state has been reached
+function scoreUp(side) {
+    const tabs = document.querySelectorAll(`#${side}>.score-tab`);
+    for (let i = 0; i < tabs.length; i++) {
+        if (!tabs[i].classList.contains(`${side}-point`)) {
+            tabs[i].classList.toggle(`${side}-point`);
+            if (i === tabs.length - 1) {
+                setResult(side);
+                endGame();
+            }
+            return;
         }
     }
-    const result = (playerScore > computerScore) 
-        ? "You Win! Great Job!" 
-        : "You Lose! Better Luck Next Tme!"
-    console.log(`FINAL: ${result}`);
 }
+
